@@ -2,7 +2,7 @@ import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
 import scipy.constants as const
-
+#hola que tal
 #Definimos constantes
 q = const.e
 hbar = const.hbar/q
