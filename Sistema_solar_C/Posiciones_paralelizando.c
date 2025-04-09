@@ -47,6 +47,7 @@ int main(){
 
     //Conociendo el valor de las excentricidades y la distancia respecto al sol calculamos
     //la velocidad inicial (la posición inicial es (x, 0)
+    #pragma opm parallel for
     for (int i = 1; i < CUERPOS; i++)
     {
         velocidades_iniciales[i][0] =  0;
@@ -54,12 +55,14 @@ int main(){
     }
     
     //Inicializamos las posiciones de los planetas en el instante 0 como posiciones_iniciales
+    #pragma opm parallel for
     for (int i = 0; i < CUERPOS; i++)
     {
         posiciones[i][0] = posiciones_iniciales[i][0];
         posiciones[i][1] = posiciones_iniciales[i][1];
     }
     //Inicializamos las velocidades de los planetas en el instante 0 como velocidades_iniciales
+    #pragma opm parallel for
     for (int i = 0; i < CUERPOS; i++)
     {
         velocidades[i][0] = velocidades_iniciales[i][0];
@@ -67,6 +70,7 @@ int main(){
     }
 
     //Inicializamos las aceleraciones de los planetas en el instante 0 teniendo en cuenta las interacciones entre ellos
+    #pragma opm parallel for
     for (int i = 0; i < CUERPOS; i++)//Recorremos todos los cuerpos
     {
         for (int a = 0; a < 2; a++)//Aplicamos para la coordenada x e y
@@ -87,6 +91,7 @@ int main(){
     }
 
     //Calculamos la energía mecánica inicial de cada cuerpo
+    #pragma opm parallel for
     for (int i = 0; i < CUERPOS; i++)
     {
         energia_inicial[i] = 0;
@@ -103,6 +108,7 @@ int main(){
     }
 
     //Calculamos los mmomentos angulares iniciales
+    #pragma opm parallel for
     for (int i = 0; i < CUERPOS; i++)
     {
         momento_angular_inicial[i] = momento_angular(posiciones_iniciales[i], masas[i], velocidades_iniciales[i]);
@@ -209,6 +215,7 @@ int main(){
     for (int n = 0; n < iteraciones; n++)
     {
         //Calculamos la posición del cuerpo i
+        #pragma opm parallel for
         for (int i = 0; i < CUERPOS; i++)
         {
             //Iteramos sobre las dos componentes de la posición
@@ -223,6 +230,7 @@ int main(){
 
         //Guardo los valores previos de las aceleraciones para el cálculo de la velocidad
         Vector2D aceleraciones_previa[CUERPOS];
+        #pragma opm parallel for
         for (int a = 0; a < 2; a++)
         {
             for (int i = 0; i < CUERPOS; i++)
@@ -232,6 +240,7 @@ int main(){
         }
 
         //Recorremos todos los cuerpos calculando sus aceleraciones y velocidades
+        #pragma opm parallel for
         for (int i = 0; i < CUERPOS; i++)
         {
             //Reseteamos el valor de las aceleraciones a 0
@@ -262,6 +271,7 @@ int main(){
         }
 
         //Calculamos la velocidad de los cuerpos
+        #pragma opm parallel for
         for (int i = 0; i < CUERPOS; i++)
         {
             for (int a = 0; a < 2; a++)
@@ -272,6 +282,7 @@ int main(){
 
         //Escribimos en el fichero la energia mecanica de los cuerpos
         energia_total = 0.0;
+        #pragma opm parallel for reduction(+:energia_total)
         for (int i = 0; i < CUERPOS; i++)
         {
             energia_inicial[i] = 0;
@@ -292,6 +303,7 @@ int main(){
 
         //Escribimos en el fichero el momento angular de los cuerpos
         momento_total = 0.0;
+        #pragma opm parallel for reduction(+:momento_total)
         for (int i = 0; i < CUERPOS; i++)
         {
             fprintf(archivos_momentos[i], "%.17f\n", momento_angular(posiciones[i], masas[i], velocidades[i]));
