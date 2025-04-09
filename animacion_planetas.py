@@ -47,8 +47,8 @@ import numpy as np
 
 # Parámetros
 # ========================================
-file_in = "planets_data.dat" # Nombre del fichero de datos
-file_out = "planetas" # Nombre del fichero de salida (sin extensión)
+file_in = "C:/Users/garci/projects/Compu/FisiCompis/planets_data.dat" # Nombre del fichero de datos
+file_out = "C:/Users/garci/projects/Compu/FisiCompis/planetas" # Nombre del fichero de salida (sin extensión)
 
 # Límites de los ejes X e Y
 x_min = -50
