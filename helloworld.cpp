@@ -173,7 +173,7 @@ int main(void)
 	{
 		// Output positions to file
 		for (int i = 0; i < N; i++) {
-			output << r[i][0]  << "," << r[i][1]  << endl; // Convert back to meters for output
+			output << r[i][0]  << " , " << r[i][1]  << endl; // Convert back to meters for output
 		}
 		output << endl; // Separate time steps with a blank line
 
