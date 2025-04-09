@@ -21,21 +21,21 @@ double normalize(const vector<double>& r) // Changed parameter to vector for fle
 
 vector<vector<double>> aceleracion(const vector<vector<double>>& r, const vector<double>& m) // Fixed parameter types
 {
-	int N = r.size(); // Number of planets
-	int dim = r[0].size(); // Number of coordinates (x, y, z)
+	size_t N = r.size(); // Number of planets
+	size_t dim = r[0].size(); // Number of coordinates (x, y, z)
 	vector<vector<double>> a(N, vector<double>(dim, 0.0)); // Initialize acceleration vector
 
-	for (int part = 0; part < N; part++) // For each planet
+	for (size_t part = 0; part < N; part++) // For each planet
 	{
-		for (int i = 0; i < dim; i++) // For each coordinate x, y, z
+		for (size_t i = 0; i < dim; i++) // For each coordinate x, y, z
 		{
 			double sum = 0;
-			for (int j = 0; j < N; j++) // Fixed missing loop condition
+			for (size_t j = 0; j < N; j++) // Fixed missing loop condition
 			{
 				if (j != part) // Avoid self-interaction
 				{
 					vector<double> diff(dim);
-					for (int k = 0; k < dim; k++) // Calculate difference vector
+					for (size_t k = 0; k < dim; k++) // Calculate difference vector
 					{
 						diff[k] = r[part][k] - r[j][k];
 					}
@@ -48,41 +48,46 @@ vector<vector<double>> aceleracion(const vector<vector<double>>& r, const vector
 	return a; // Return acceleration of each planet
 }
 
+
+//Energía cinética de los planetas teniendo en cuenta reescalamiento de unidades
 vector<double> EK(const vector<vector<double>>& v)//Para calcular la energía en cada momento
 {
-	int N = v.size(); // Number of planets
-	int dim = v[0].size(); // Number of coordinates (x, y, z)
+	size_t N = v.size(); // Number of planets
+	size_t dim = v[0].size(); // Number of coordinates (x, y, z)
 	vector<double> E_kin(N, 0.0); // Initialize kinetic energy vector
 
-	for (int i = 0; i < N; i++) // For each planet
+	for (size_t i = 0; i < N; i++) // For each planet
 	{
-		for (int j = 0; j < dim; j++) // For each coordinate x, y, z
+		for (size_t j = 0; j < dim; j++) // For each coordinate x, y, z
 		{
-			E_kin[i] += 0.5 * v[i][j] * v[i][j]; // Kinetic energy calculation
+			E_kin[i] += 0.5 * v[i][j] * v[i][j]*G * Msun / AU; // Kinetic energy calculation
 		}
 	}
 	return E_kin; // Return kinetic energy of each planet
 
 }
 
+
+
+//Energía potencial entre los planetas teniendo en cuenta reescalamiento de unidades
 vector<double> EP(const vector<vector<double>>& r, const vector<double>& m)//Para calcular la energía potencial en cada momento
 {
-	int N = r.size(); // Number of planets
-	int dim = r[0].size(); // Number of coordinates (x, y, z)
+	size_t N = r.size(); // Number of planets
+	size_t dim = r[0].size(); // Number of coordinates (x, y, z)
 	vector<double> E_pot(N, 0.0); // Initialize potential energy vector
 
-	for (int i = 0; i < N; i++) // For each planet
+	for (size_t i = 0; i < N; i++) // For each planet
 	{
-		for (int j = 0; j < N; j++) // For each planet again for potential energy calculation
+		for (size_t j = 0; j < N; j++) // For each planet again for potential energy calculation
 		{
 			if (i != j) // Avoid self-interaction
 			{
 				double r_ij = 0;
-				for (int k = 0; k < dim; k++) // Calculate distance between planets
+				for (size_t k = 0; k < dim; k++) // Calculate distance between planets
 				{
 					r_ij += pow(r[i][k] - r[j][k], 2);
 				}
-				E_pot[i] -= G * m[i] * m[j] / sqrt(r_ij); // Potential energy calculation
+				E_pot[i] -= G/AU * pow(Msun,2) * m[i] * m[j] / sqrt(r_ij); // Potential energy calculation
 			}
 		}
 	}
@@ -91,10 +96,10 @@ vector<double> EP(const vector<vector<double>>& r, const vector<double>& m)//Par
 
 vector<double> ETotal(const vector<double>& E_kin, const vector<double>& E_pot)//Para calcular la energía total en cada momento
 {
-	int N = E_kin.size(); // Number of planets
+	size_t N = E_kin.size(); // Number of planets
 	vector<double> E_total(N, 0.0); // Initialize total energy vector
 
-	for (int i = 0; i < N; i++) // For each planet
+	for (size_t i = 0; i < N; i++) // For each planet
 	{
 		E_total[i] = E_kin[i] + E_pot[i]; // Total energy calculation
 	}
@@ -154,8 +159,8 @@ int main(void)
 	// Algoritmo de Verlet
 	double dt = 0.01; // Time step 
 	double t = 0; // Initial time
-	double tmax = 10; // Maximum time
-	int N = r0.size(); // Number of planets
+	double tmax = 3; // Maximum time
+	size_t N = r0.size(); // Number of planets
 
 	vector<vector<double>> r = r0; // Current positions
 	vector<vector<double>> v = v0; // Current velocities
@@ -172,7 +177,7 @@ int main(void)
 	while (t < tmax) // Time loop
 	{
 		// Output positions to file
-		for (int i = 0; i < N; i++) {
+		for (size_t i = 0; i < N; i++) {
 			output << r[i][0]  << " , " << r[i][1]  << endl; // Convert back to meters for output
 		}
 		output << endl; // Separate time steps with a blank line
@@ -190,9 +195,9 @@ int main(void)
 		//cout << "Time: " << t << endl; // Output time
 
 
-		for (int i = 0; i < N; i++) // Update positions and velocities
+		for (size_t i = 0; i < N; i++) // Update positions and velocities
 		{
-			for (int j = 0; j < 2; j++) // For x and y coordinates
+			for (size_t j = 0; j < 2; j++) // For x and y coordinates
 			{
 				v[i][j] = v_aux[i][j]; // Update velocity
 				v_aux[i][j] += a[i][j] * dt; // Update velocity
