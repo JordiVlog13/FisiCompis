@@ -17,7 +17,6 @@ for i in range(cuerpos):
 
 
 energia_total = pd.read_csv("Datos_sistema/energia_total.txt", delimiter='\t', header=0).to_numpy()
-momento_total = pd.read_csv("Datos_sistema/momento_total.txt", delimiter='\t', header=0).to_numpy()
 
 
 # Nombres de los cuerpos
@@ -59,24 +58,20 @@ frames = len(posiciones[0])//factor
 anim = FuncAnimation(fig, update, init_func=init, frames=frames, blit=True, interval=10)
 
 
-fig2, ax2 = plt.subplots(ncols=2)
-energia, = ax2[0].plot([], [], 'r-')
-momento, = ax2[1].plot([], [], 'b-')
+fig2, ax2 = plt.subplots()
+energia, = ax2.plot([], [], 'r-')
 
 def update2(frame):
     frame = factor * frame
     energia.set_data(np.arange(frame), energia_total[:frame])
-    momento.set_data(np.arange(frame), momento_total[:frame])
-    return energia, momento
+    return energia, 
 
 anim2 = FuncAnimation(fig2, update2,frames=frames, blit=True, interval=10)
 
 
 # Configurar límites y proporciones
-ax2[0].set_xlim(0, len(energia_total))
-ax2[1].set_xlim(0, len(momento_total))
-ax2[0].set_ylim(min(energia_total[1:]), max(energia_total[1:]))
-ax2[1].set_ylim(min(momento_total)-0.01, max(momento_total)+0.01)
+ax2.set_xlim(0, len(energia_total))
+ax2.set_ylim(min(energia_total[1:]), max(energia_total[1:]))
 ax.set_xlim(-50, 50)
 ax.set_ylim(-50, 50)
 ax.set_aspect('equal')
