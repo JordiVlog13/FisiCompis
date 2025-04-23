@@ -1,0 +1,87 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def inicializar_spines(N):
+    """Inicializa el spines con espines aleatorios (+1 o -1)."""
+    return np.random.choice([-1, 1], size=(N, N))
+
+def energia_promedio(spines):
+    """Calcula la energía promedio del sistema."""
+    N = spines.shape[0]
+    energia = 0
+    for i in range(N):
+        for j in range(N):
+            S = spines[i, j]
+            # Interacción con los vecinos
+            vecinos = spines[(i+1)%N, j] + spines[i, (j+1)%N] + spines[(i-1)%N, j] + spines[i, (j-1)%N]
+            energia += -S * vecinos
+    return energia / (2 * N ** 2)  # Evitar contar interacciones dos veces
+
+def magnetizacion_promedio(spines):
+    """Calcula la magnetización promedio del sistema."""
+    N = spines.shape[0]
+    return np.sum(spines)/N ** 2 
+
+def metropolis(spines, beta):
+    """Implementa el algoritmo de Metropolis para actualizar el spines."""
+    N = spines.shape[0]
+    for _ in range(N * N):  # N^2 intentos de actualización por paso
+        i, j = np.random.randint(0, N, size=2)
+        S = spines[i, j]
+        # Interacción con los vecinos
+        vecinos = spines[(i+1)%N, j] + spines[i, (j+1)%N] + spines[(i-1)%N, j] + spines[i, (j-1)%N]
+        dE = 2 * S * vecinos
+        p= min(1, np.exp(-beta * dE))  # Probabilidad de aceptación
+        # Aceptar o rechazar el cambio
+        if np.random.rand() < p:
+            spines[i, j] *= -1
+    return spines
+
+def simular_ising(N, T, pasos):
+    """Simula el modelo de Ising."""
+    beta = 1 / T
+    spines = inicializar_spines(N)
+    energias = []
+    magnetizaciones = []
+
+    for paso in range(pasos):
+        spines = metropolis(spines, beta)
+        energia = energia_promedio(spines)
+        magnetizacion = magnetizacion_promedio(spines)
+        energias.append(energia)
+        magnetizaciones.append(magnetizacion)
+
+    return spines, energias, magnetizaciones
+
+# Parámetros
+N = 30  # Tamaño del spines (N x N)
+T = 1.5  # Temperatura
+pasos = 1000  # Número de pasos de Monte Carlo
+
+# Simulación
+spines_final, energias, magnetizaciones = simular_ising(N, T, pasos)
+
+# Graficar resultados
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.plot(energias, label="Energía promedio")
+plt.xlabel("Paso")
+plt.ylabel("Energía promedio")
+plt.legend()
+
+plt.subplot(1, 2, 2)
+plt.plot(magnetizaciones, label="Magnetización promedio")
+plt.xlabel("Paso")
+plt.ylabel("Magnetización promedio")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# Mostrar el spines final
+plt.imshow(spines_final, cmap="Greys", interpolation="nearest")
+plt.title(f"Configuración final del spines para T={T}")
+plt.axis("off")
+plt.colorbar(label="Spin")
+plt.show()
