@@ -5,6 +5,12 @@ def inicializar_spines(N):
     """Inicializa el spines con espines aleatorios (+1 o -1)."""
     return np.random.choice([-1, 1], size=(N, N))
 
+def guardar_spines_txt(spines, paso, filename="estados.txt"):
+    """Guarda el estado de los spines en un archivo de texto en el formato especificado."""
+    with open(filename, "a") as f:  # Abre el archivo en modo de adición
+        np.savetxt(f, spines, fmt="%d", delimiter=",")  # Guarda la matriz de espines
+        f.write("\n")  # Agrega una línea en blanco para separar los pasos
+
 def energia_promedio(spines):
     """Calcula la energía promedio del sistema."""
     N = spines.shape[0]
@@ -44,6 +50,9 @@ def simular_ising(N, T, pasos):
     energias = []
     magnetizaciones = []
 
+    # Limpia el archivo de salida antes de comenzar
+    open("estados.txt", "w").close()
+
     for paso in range(pasos):
         spines = metropolis(spines, beta)
         energia = energia_promedio(spines)
@@ -51,11 +60,14 @@ def simular_ising(N, T, pasos):
         energias.append(energia)
         magnetizaciones.append(magnetizacion)
 
+        # Guardar el estado de los spines en cada paso
+        guardar_spines_txt(spines, paso)
+
     return spines, energias, magnetizaciones
 
 # Parámetros
-N = 30  # Tamaño del spines (N x N)
-T = 1.5  # Temperatura
+N = 10  # Tamaño del spines (N x N)
+T = 20  # Temperatura
 pasos = 1000  # Número de pasos de Monte Carlo
 
 # Simulación
