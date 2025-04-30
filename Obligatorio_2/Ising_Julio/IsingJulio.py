@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def inicializar_spines(N):
     """Inicializa el spines con espines aleatorios (+1 o -1)."""
     return np.random.choice([-1, 1], size=(N, N))
@@ -21,12 +22,15 @@ def energia_promedio(spines):
             # Interacción con los vecinos
             vecinos = spines[(i+1)%N, j] + spines[i, (j+1)%N] + spines[(i-1)%N, j] + spines[i, (j-1)%N]
             energia += -S * vecinos
-    return energia / (2 * N ** 2)  # Evitar contar interacciones dos veces
+                    
+    return energia/(2* N*N)  # Dividir por 2 para evitar contar cada interacción dos veces
+
+
 
 def magnetizacion_promedio(spines):
     """Calcula la magnetización promedio del sistema."""
     N = spines.shape[0]
-    return np.sum(spines)/N ** 2 
+    return np.abs(np.sum(spines))/(N *N)
 
 def metropolis(spines, beta):
     """Implementa el algoritmo de Metropolis para actualizar el spines."""
@@ -66,8 +70,8 @@ def simular_ising(N, T, pasos):
     return spines, energias, magnetizaciones
 
 # Parámetros
-N = 10  # Tamaño del spines (N x N)
-T = 20  # Temperatura
+N = 128  # Tamaño del spines (N x N)
+T = 2.269  # Temperatura
 pasos = 1000  # Número de pasos de Monte Carlo
 
 # Simulación
@@ -87,6 +91,9 @@ plt.plot(magnetizaciones, label="Magnetización promedio")
 plt.xlabel("Paso")
 plt.ylabel("Magnetización promedio")
 plt.legend()
+
+
+plt.suptitle(f"Simulación de Ising para N={N} y T={T}")
 
 plt.tight_layout()
 plt.show()
