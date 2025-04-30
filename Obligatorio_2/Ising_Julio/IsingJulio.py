@@ -70,9 +70,9 @@ def simular_ising(N, T, pasos):
     return spines, energias, magnetizaciones
 
 # Parámetros
-N = 128  # Tamaño del spines (N x N)
-T = 2.269  # Temperatura
-pasos = 1000  # Número de pasos de Monte Carlo
+N = 64  # Tamaño del spines (N x N)
+T = 1  # Temperatura
+pasos = 500  # Número de pasos de Monte Carlo
 
 # Simulación
 spines_final, energias, magnetizaciones = simular_ising(N, T, pasos)
