@@ -46,7 +46,7 @@ import io
 # Parámetros
 # ========================================
 file_in = "estados.txt" # Nombre del fichero de datos
-file_out = "ising_100_1000_2.2" # Nombre del fichero de salida (sin extensión)
+file_out = "ising_100_500_2.269" # Nombre del fichero de salida (sin extensión)
 interval = 100 # Tiempo entre fotogramas en milisegundos
 save_to_file = True # False: muestra la animación por pantalla,
                      # True: la guarda en un fichero
@@ -75,23 +75,36 @@ for frame_data_str in data_str.split("\n\n"):
     # a la lista
     frames_data.append(frame_data)
 
+#Leo los datos de la energía
+energias = np.loadtxt("energias.txt")/10000
+
+#Leo los datos de la magnetizacion
+magnetizaciones = np.loadtxt("magnetizaciones.txt")
 # Creación de la animación/gráfico
 # ========================================
 # Crea los objetos figure y axis
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(nrows=2, ncols=2)
 
 # Define el rango de los ejes
-ax.axis("off")  # No muestra los ejes
+ax[0, 0].axis("off")  # No muestra los ejes
+ax[1, 0].set_xlim(0, len(energias))
+ax[1, 0].set_ylim(min(energias), max(energias))
+ax[1, 1].set_xlim(0, len(magnetizaciones))
+ax[1, 1].set_ylim(min(magnetizaciones), max(magnetizaciones))
 
 # Representa el primer fotograma
-im = ax.imshow(frames_data[0], cmap="binary", vmin=-1, vmax=+1)
+im = ax[0, 0].imshow(frames_data[0], cmap="binary", vmin=-1, vmax=+1)
+plot_energia, = ax[1, 0].plot([])
+plot_magnet, = ax[1, 1].plot([])
  
 # Función que actualiza la configuración del sistema en la animación
-def update(j_frame, frames_data, im):
+def update(j_frame, frames_data, im, plot_energia, plot_magnet):
     # Actualiza el gráfico con la configuración del sistema
     im.set_data(frames_data[j_frame])
+    plot_energia.set_data(np.arange(j_frame), energias[:j_frame])
+    plot_magnet.set_data(np.arange(j_frame), magnetizaciones[:j_frame])
 
-    return im,
+    return im, plot_energia, plot_magnet
 
 # Calcula el nº de frtogramas o instantes de tiempo
 nframes = len(frames_data)
@@ -100,7 +113,7 @@ nframes = len(frames_data)
 if nframes > 1:
     animation = FuncAnimation(
             fig, update,
-            fargs=(frames_data, im), frames=len(frames_data), blit=True, interval=interval)
+            fargs=(frames_data, im, plot_energia, plot_magnet), frames=len(frames_data), blit=True, interval=interval)
 
     # Muestra por pantalla o guarda según parámetros
     if save_to_file:

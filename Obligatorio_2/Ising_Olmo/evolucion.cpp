@@ -43,6 +43,44 @@ void paso_Markov_checkerboard(int estado[][COLUMNAS], double temperatura, int co
     }
 }
 
+double calcular_energia(int estado[][COLUMNAS]){
+    double energia = 0;
+    for (int i = 0; i < FILAS; i++)
+    {
+        for (int j = 0; j < COLUMNAS; j++)
+        {
+            double e0 = 0;
+            for (int di = -1; di < 2; di+=2)
+            {
+                e0 += estado[(i + di + FILAS) % FILAS][j];
+            }
+
+            for (int dj = -1; dj < 2; dj+=2)
+            {
+                e0 += estado[i][(j + dj + COLUMNAS) % COLUMNAS];
+            }
+            e0 *= estado[i][j];
+            energia += e0;
+        }
+        
+    }
+    return energia * (-0.5);
+}
+
+double calcular_magnetizacion(int estado[][COLUMNAS]){
+    double magnetizacion = 0;
+    for (int i = 0; i < FILAS; i++)
+    {
+        for (int j = 0; j < COLUMNAS; j++)
+        {
+            magnetizacion += estado[i][j];
+        }
+        
+    }
+    
+    return abs(magnetizacion) / (FILAS * COLUMNAS);
+}
+
 int main(int argc, char* argv[]) {
     // Valores por defecto
     int pasos_Montecarlo = 1000; // Número de pasos de Monte Carlo
@@ -58,8 +96,10 @@ int main(int argc, char* argv[]) {
 
     FILE *ifile = fopen("estado_inicial.txt", "r");
     FILE *ofile = fopen("estados.txt", "w");
+    FILE *energ_file = fopen("energias.txt", "w");
+    FILE *magnet_file = fopen("magnetizaciones.txt", "w");
 
-    if (ifile == NULL || ofile == NULL) {
+    if (ifile == NULL || ofile == NULL || energ_file == NULL || magnet_file == NULL) {
         perror("No se pudo abrir el archivo");
         return 1;
     }
@@ -94,10 +134,16 @@ int main(int argc, char* argv[]) {
         // Escribir el estado actual al archivo de salida
         for (int i = 0; i < FILAS; i++) {
             for (int j = 0; j < COLUMNAS - 1; j++)
-                fprintf(ofile, "%d, ", estado[i][j]);
+                fprintf(ofile, "%d,", estado[i][j]);
             fprintf(ofile, "%d\n", estado[i][COLUMNAS - 1]);
         }
         fprintf(ofile, "\n");
+        
+        // Escribir la energía del sistema
+        fprintf(energ_file, "%f\n", calcular_energia(estado));
+
+        // Escribir la magnetización del sistema
+        fprintf(magnet_file, "%f\n", calcular_magnetizacion(estado));
     }
 
     double final = omp_get_wtime();
@@ -105,6 +151,8 @@ int main(int argc, char* argv[]) {
 
     fclose(ifile);
     fclose(ofile);
+    fclose(energ_file);
+    fclose(magnet_file);
 
     return 0;
 }
